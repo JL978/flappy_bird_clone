@@ -29,7 +29,6 @@ function setup() {
     //Initialize new game objects instances
     bird = new Bird()
     ground = new Ground()
-    pipe = new Pipe()
   }
   
 function draw() {
@@ -38,17 +37,19 @@ function draw() {
     background(BG_IMG);
 
     if (frameCount % 60  === 0){
-        pipes.push(new Pipe())
+        const pipe = new Pipe()
+        pipes.push(pipe)
     }
 
-    for (let i = 0; i<pipes.length; i++){
+    for (let i = pipes.length-1; i >= 0; i--){
         pipes[i].show()
         pipes[i].update()
-        if (pipe.isOff()) {
-            pipes.splice(index, 1)
+        if (pipes[i].isOff()) {
+            pipes.splice(i, 1)
         }
     }
-        
+    
+    console.log(pipes.length)
 
     ground.show()
     ground.update()  
@@ -85,6 +86,10 @@ function keyPressed() {
     if (key === ' '){
         bird.jump()
     }
+}
+
+function mouseClicked(){
+    bird.jump()
 }
 
 //Bird object
@@ -210,8 +215,10 @@ function Pipe(){
     }
 
     this.update = () =>{
-        this.x -= this.velocity
+        this.x = this.x - this.velocity
     }
 
-    this.isOff = () => this.x < -this.SCALE*PIPE_UP_IMG.width
+    this.isOff = () => {
+        return this.x < -this.SCALE*PIPE_UP_IMG.width
+    }
 }
