@@ -6,13 +6,18 @@ let bird
 let BIRD_IMG
 let BG_IMG
 let BASE_IMG
+let PIPE_UP_IMG
+let PIPE_DOWN_IMG
 
+let pipes = []
 //P5js functions - determines main logic of the game
 //Everything that might take some time to load goes here 
 function preload() {
     BIRD_IMG = [loadImage('assets/bird1.png'),loadImage('assets/bird2.png'),loadImage('assets/bird3.png')]
     BG_IMG = loadImage('assets/bg.png')
     BASE_IMG = loadImage('assets/base.png')
+    PIPE_UP_IMG = loadImage('assets/pipeUp.png')
+    PIPE_DOWN_IMG = loadImage('assets/pipeDown.png')
 }
 
 //Configuration of game window
@@ -24,12 +29,26 @@ function setup() {
     //Initialize new game objects instances
     bird = new Bird()
     ground = new Ground()
+    pipe = new Pipe()
   }
   
 function draw() {
     //Setting background - using imageMode(CORNER) as there seem to be a
     //bug when using imageMode(CENTER) in the background 
     background(BG_IMG);
+
+    if (frameCount % 60  === 0){
+        pipes.push(new Pipe())
+    }
+
+    for (let i = 0; i<pipes.length; i++){
+        pipes[i].show()
+        pipes[i].update()
+        if (pipe.isOff()) {
+            pipes.splice(index, 1)
+        }
+    }
+        
 
     ground.show()
     ground.update()  
@@ -71,11 +90,11 @@ function keyPressed() {
 //Bird object
 function Bird(){
     //Functional variable, not to be updated
-    this.FLAP_INTERVAL = 2  
+    this.FLAP_INTERVAL = 2 
     this.SCALE = 1.75
     //Positioning and tilt varibles to be updated every frame
     this.y = height/2 
-    this.x = width/4     
+    this.x = width/3    
     this.tilt = 0
     //Variables to keep track of different physics 
     this.tick_count = 0
@@ -144,10 +163,15 @@ function Bird(){
             this.y = height - 110
             displacement = 0  
         }
+
+        if (this.y < -30){
+            this.y = -30
+            displacement = 0  
+        }
     }
 }
 
-
+  
 function Ground(){
     this.velocity = 5
     this.x1 = 0
@@ -169,4 +193,25 @@ function Ground(){
         image(BASE_IMG, this.x1, this.y, width, BASE_IMG.height)
         image(BASE_IMG, this.x2, this.y, width, BASE_IMG.height)
     }
+}
+
+function Pipe(){
+    this.SCALE = 1.75
+    this.velocity = 5
+    this.gap = 175
+
+    this.x = width
+    this.height = random(200, 400)
+
+    this.show = () =>{
+        image(PIPE_UP_IMG, this.x, this.height, this.SCALE*PIPE_UP_IMG.width, this.SCALE*PIPE_UP_IMG.height)
+        const topPosition = this.height - this.SCALE*PIPE_DOWN_IMG.height - this.gap
+        image(PIPE_DOWN_IMG, this.x, topPosition, this.SCALE*PIPE_DOWN_IMG.width, this.SCALE*PIPE_DOWN_IMG.height)
+    }
+
+    this.update = () =>{
+        this.x -= this.velocity
+    }
+
+    this.isOff = () => this.x < -this.SCALE*PIPE_UP_IMG.width
 }
