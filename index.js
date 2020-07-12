@@ -3,20 +3,23 @@ const WIN_HEIGHT = WIN_WIDTH * 1.62
 
 let bird
 let BIRD_IMG
-let BG_IMG
+var BG_IMG
 
-function setup() {
-    createCanvas(WIN_WIDTH, WIN_HEIGHT);
-    imageMode(CENTER)
+function preload() {
     BIRD_IMG = [loadImage('assets/bird1.png'),loadImage('assets/bird2.png'),loadImage('assets/bird3.png')]
     BG_IMG = loadImage('assets/bg.png')
+}
+
+function setup() {
+    
+    createCanvas(WIN_WIDTH, WIN_HEIGHT);
     angleMode(DEGREES)
     bird = new Bird()
     frameRate(30)
   }
   
-function draw() {
-    background(BG_IMG); 
+function draw() { 
+    background(BG_IMG);
 
     translate(bird.x, bird.y)
     rotate(bird.tilt)
@@ -30,7 +33,8 @@ function draw() {
         bird.show(1)
     }
 
-    bird.update() 
+    bird.update()   
+    imageMode(CORNER)
 }
 
 
@@ -44,8 +48,8 @@ function Bird(){
     this.FLAP_INTERVAL = 2  
     this.SCALE = 1.75
 
-    this.y = height/2
-    this.x = 64
+    this.y = height/2 
+    this.x = width/4     
 
     this.tilt = 0
 
@@ -54,9 +58,10 @@ function Bird(){
     this.velocity = 0
     this.img_count = 0
 
-    this.jump_height = this.y
+    this.jump_height = this.y + 20
 
-    this.show = (i) => {  
+    this.show = (i) => {
+        imageMode(CENTER)
         image(BIRD_IMG[i], 0, 0, this.SCALE*BIRD_IMG[i].width, this.SCALE*BIRD_IMG[i].height)
     }
 
@@ -82,7 +87,7 @@ function Bird(){
         }
         
         if (displacement > 0){
-            displacement += 3
+            displacement += 10
         }
 
         this.y -= displacement
@@ -92,7 +97,7 @@ function Bird(){
             this.tilt = -25
         }else{
             if (this.tilt < 90){
-                this.tilt += 10 
+                this.tilt += 20 
             }
         }
 
