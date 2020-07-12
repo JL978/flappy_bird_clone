@@ -47,13 +47,19 @@ function draw() {
         if (pipes[i].isOff()) {
             pipes.splice(i, 1)
         }
+
+        if (pipes[i].collide(bird)){
+            noLoop()
+            break
+        } 
     }
     
-    console.log(pipes.length)
-
     ground.show()
     ground.update()  
-
+    
+    // ellipseMode(CENTER)
+    // noFill()
+    // ellipse(bird.x, bird.y, bird.SCALE*BIRD_IMG[0].width*0.85)  
     //Bird control logic
     translate(bird.x, bird.y)
     rotate(bird.tilt)
@@ -73,6 +79,13 @@ function draw() {
             bird.show(1)
         }
     }
+    
+    if (bird.hitGround()){
+        noLoop()
+    }
+
+    
+
     bird.update() //Change bird actions every frame rerender   
     
     //Chang the imageMode back to corner before the next render so the
@@ -112,6 +125,7 @@ function Bird(){
     this.show = (i) => {
         imageMode(CENTER)
         image(BIRD_IMG[i], 0, 0, this.SCALE*BIRD_IMG[i].width, this.SCALE*BIRD_IMG[i].height)
+
     }
 
     //Jump event - add velocity to bird, reset tick_count for physics, record jump_height 
@@ -174,6 +188,10 @@ function Bird(){
             displacement = 0  
         }
     }
+
+    this.hitGround = ()=>{
+        return this.y > height - 110 - BIRD_IMG[0].width 
+    }
 }
 
   
@@ -203,7 +221,7 @@ function Ground(){
 function Pipe(){
     this.SCALE = 1.75
     this.velocity = 5
-    this.gap = 175
+    this.gap = 200    
 
     this.x = width
     this.height = random(200, 400)
@@ -221,4 +239,44 @@ function Pipe(){
     this.isOff = () => {
         return this.x < -this.SCALE*PIPE_UP_IMG.width
     }
+
+    this.collide = (bird) => {
+        const cx = bird.x
+        const cy = bird.y
+        const dia = BIRD_IMG[0].width*bird.SCALE*0.85
+
+        const topPosition = this.height - this.SCALE*PIPE_DOWN_IMG.height - this.gap
+        const collideTop = collideRectCircle(this.x, topPosition, this.SCALE*PIPE_DOWN_IMG.width, this.SCALE*PIPE_DOWN_IMG.height, cx, cy, dia)
+        const collideBottom = collideRectCircle(this.x, this.height, this.SCALE*PIPE_UP_IMG.width, this.SCALE*PIPE_UP_IMG.height, cx, cy, dia)
+    
+        if (collideTop || collideBottom){
+            return true
+        }else{
+            return false
+        }
+    }
 }
+
+//Code from a library
+collideRectCircle = function (rx, ry, rw, rh, cx, cy, diameter) {
+    //2d
+    // temporary variables to set edges for testing
+    var testX = cx;
+    var testY = cy;
+  
+    // which edge is closest?
+    if (cx < rx){         testX = rx       // left edge
+    }else if (cx > rx+rw){ testX = rx+rw  }   // right edge
+  
+    if (cy < ry){         testY = ry       // top edge
+    }else if (cy > ry+rh){ testY = ry+rh }   // bottom edge
+  
+    // // get distance from closest edges
+    var distance = this.dist(cx,cy,testX,testY)
+  
+    // if the distance is less than the radius, collision!
+    if (distance <= diameter/2) {
+      return true;
+    }
+    return false;
+  };
