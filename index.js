@@ -1,6 +1,7 @@
 //Declare global variables (needed to be used in different functions)
 const WIN_WIDTH = 400
 const WIN_HEIGHT = WIN_WIDTH * 1.62
+const GROUND_HEIGHT = 110
 
 let bird
 let BIRD_IMG
@@ -57,9 +58,6 @@ function draw() {
     ground.show()
     ground.update()  
     
-    // ellipseMode(CENTER)
-    // noFill()
-    // ellipse(bird.x, bird.y, bird.SCALE*BIRD_IMG[0].width*0.85)  
     //Bird control logic
     translate(bird.x, bird.y)
     rotate(bird.tilt)
@@ -84,8 +82,6 @@ function draw() {
         noLoop()
     }
 
-    
-
     bird.update() //Change bird actions every frame rerender   
     
     //Chang the imageMode back to corner before the next render so the
@@ -94,7 +90,7 @@ function draw() {
     imageMode(CORNER)
 }
 
-//On keypress event 
+//P5 functions for interaction events
 function keyPressed() {
     if (key === ' '){
         bird.jump()
@@ -105,31 +101,32 @@ function mouseClicked(){
     bird.jump()
 }
 
-//Bird object
+
+
 function Bird(){
-    //Functional variable, not to be updated
+    //Functional variable, DO NOT UPDATE PROGRAMMATICALLY
     this.FLAP_INTERVAL = 2 
     this.SCALE = 1.75
+
     //Positioning and tilt varibles to be updated every frame
     this.y = height/2 
     this.x = width/3    
     this.tilt = 0
-    //Variables to keep track of different physics 
+
+    //Physics variables 
     this.tick_count = 0
     this.img_count = 0
     this.gravity = 0.2         
     this.velocity = 0 //Jump velocity - NOT CONSTANT VELOCITY
     this.jump_height = this.y + 20
 
-    //Class method to load the different images used for bird animation
+    //Take in integers 0, 1, 2 to show different wing state
     this.show = (i) => {
         imageMode(CENTER)
         image(BIRD_IMG[i], 0, 0, this.SCALE*BIRD_IMG[i].width, this.SCALE*BIRD_IMG[i].height)
-
     }
 
-    //Jump event - add velocity to bird, reset tick_count for physics, record jump_height 
-    //to keep track of rotation
+    //Jump event - add velocity to bird, reset tick_count for physics, record jump_height to keep track of rotation
     this.jump = () =>{
         this.velocity = 10                        
         this.tick_count = 0
@@ -137,29 +134,29 @@ function Bird(){
     }
 
     this.update = () =>{
-        //displacement physics updated every frame render
         this.tick_count += 1
         //kinematics equation - initial velocity is 0 in most cases except for jump event
         let displacement = this.velocity - (0.5)*this.gravity*this.tick_count**2
         this.velocity -= this.gravity*this.tick_count
-        //Don't want more negative value added on the displacement (too much acceleration)
+
+        //Limiting velocity so fall rate doesn't get too high
         if (this.velocity < 0){
             this.velocity = 0 
         }
-        //Terminal velocity
+
         if (displacement >= 5){
             displacement = 5  
         }
+
         //Adding more 'bounce' to jump
         if (displacement > 0){
             displacement += 10
         }
-        //Finally updating the y variable with the determined displacement
+
+        //Update y position
         this.y -= displacement
 
-        //Updating tilt positioning - if you just jump or still above the 
-        //jump height , tilt upward 25 degree. Else, gradually update the 
-        //tilt until it reachs 90 degree or the bird is pointing downwards 
+        //Updating tilt positioning 
         if (displacement >  0 || this.y < this.jump_height){
             this.tilt = -25
         }else{
@@ -177,7 +174,7 @@ function Bird(){
             this.img_count = 0
         }
         
-        //Stop the bird from moving off the screen
+        //Limit y position of the bird 
         if (this.y > height - 110){
             this.y = height - 110
             displacement = 0  
@@ -190,7 +187,7 @@ function Bird(){
     }
 
     this.hitGround = ()=>{
-        return this.y > height - 110 - BIRD_IMG[0].width 
+        return this.y > height - GROUND_HEIGHT - BIRD_IMG[0].width 
     }
 }
 
@@ -199,7 +196,7 @@ function Ground(){
     this.velocity = 5
     this.x1 = 0
     this.x2 = width
-    this.y = height - 110  
+    this.y = height - GROUND_HEIGHT  
 
     this.update = ()=>{
         this.x1 -= this.velocity
@@ -225,11 +222,11 @@ function Pipe(){
 
     this.x = width
     this.height = random(200, 400)
+    this.topPosition = this.height - this.SCALE*PIPE_DOWN_IMG.height - this.gap
 
     this.show = () =>{
-        image(PIPE_UP_IMG, this.x, this.height, this.SCALE*PIPE_UP_IMG.width, this.SCALE*PIPE_UP_IMG.height)
-        const topPosition = this.height - this.SCALE*PIPE_DOWN_IMG.height - this.gap
-        image(PIPE_DOWN_IMG, this.x, topPosition, this.SCALE*PIPE_DOWN_IMG.width, this.SCALE*PIPE_DOWN_IMG.height)
+        image(PIPE_UP_IMG, this.x, this.height, this.SCALE * PIPE_UP_IMG.width, this.SCALE*PIPE_UP_IMG.height)
+        image(PIPE_DOWN_IMG, this.x, this.topPosition, this.SCALE*PIPE_DOWN_IMG.width, this.SCALE*PIPE_DOWN_IMG.height)
     }
 
     this.update = () =>{
