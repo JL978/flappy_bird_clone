@@ -70,6 +70,7 @@ function keyPressed() {
 
 function mouseClicked() {
 	gamePlay && bird.jump();
+	!gamePlay && bird.hitGround() && gameStartConditions();
 }
 
 function gameStartConditions() {
