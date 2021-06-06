@@ -30,7 +30,7 @@ function preload() {
 //Configuration of game window
 function setup() {
 	//P5js functions
-	createCanvas(WIN_WIDTH, WIN_HEIGHT);
+	createCanvas(WIN_WIDTH, WIN_HEIGHT).touchStarted(jumpEvent);
 	angleMode(DEGREES);
 	frameRate(30);
 	//Initialize global game objects instances
@@ -63,12 +63,15 @@ function draw() {
 //P5 functions for interaction events
 function keyPressed() {
 	if (key === " ") {
-		gamePlay && bird.jump();
-		!gamePlay && bird.hitGround() && gameStartConditions();
+		jumpEvent();
 	}
 }
 
 function mouseClicked() {
+	jumpEvent();
+}
+
+function jumpEvent() {
 	gamePlay && bird.jump();
 	!gamePlay && bird.hitGround() && gameStartConditions();
 }
