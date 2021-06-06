@@ -8,6 +8,6 @@ function Score(current) {
 	};
 
 	this.incrementBy = (amount) => {
-		this.current += 1;
+		this.current += amount;
 	};
 }

@@ -29,15 +29,10 @@ function Bird() {
 
 	this.update = () => {
 		let displacement = this.getDisplacement();
-		console.log(displacement);
 		this.y -= displacement;
 		this.updateTiltBasedOnDisplacement(displacement);
 
-		//Updates to keep track of flapping mechanism
-		this.img_count += 1;
-		if (this.img_count > this.FLAP_INTERVAL * 4) {
-			this.img_count = 0;
-		}
+		this.updateImgCount();
 
 		//Limit y position of the bird
 		if (this.y > height - 110) {
@@ -48,6 +43,42 @@ function Bird() {
 		if (this.y < -30) {
 			this.y = -30;
 			displacement = 0;
+		}
+
+		//Bird control logic
+		translate(this.x, this.y);
+		rotate(this.tilt);
+		this.updateImage();
+
+		if (this.hitGround()) {
+			gamePlay = false;
+		}
+	};
+
+	this.updateImage = () => {
+		if (this.tilt > 80) {
+			//If this is pointing down, don't animate flapping
+			this.show(1);
+		} else {
+			//Flapping animation - using imageMode(CENTER) so the rotation
+			//is around in the center of the image
+			if (this.img_count <= this.FLAP_INTERVAL) {
+				this.show(0);
+			} else if (this.img_count <= this.FLAP_INTERVAL * 2) {
+				this.show(1);
+			} else if (this.img_count <= this.FLAP_INTERVAL * 3) {
+				this.show(2);
+			} else if (this.img_count <= this.FLAP_INTERVAL * 4) {
+				this.show(1);
+			}
+		}
+	};
+
+	this.updateImgCount = () => {
+		//Updates to keep track of flapping mechanism
+		this.img_count += 1;
+		if (this.img_count > this.FLAP_INTERVAL * 4) {
+			this.img_count = 0;
 		}
 	};
 
