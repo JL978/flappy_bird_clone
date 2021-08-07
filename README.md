@@ -1,4 +1,4 @@
-# Another Flappy Bird Clone
+# A Flappy Bird Clone
 ![demo](https://media.giphy.com/media/O0Xe4GlmgBNk5AcxQD/giphy.gif)
 
 ### Details
